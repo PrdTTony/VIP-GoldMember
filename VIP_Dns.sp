@@ -1,5 +1,7 @@
 #pragma semicolon 1
+#pragma tabsize 0
 #pragma newdecls required;
+
 
 #include <sourcemod>
 #include <vip_core>
@@ -10,6 +12,7 @@
 ConVar	cv_ServerDNS;
 ConVar	cv_GiveVIP;
 ConVar	cv_GroupType;
+ConVar	cv_GroupType1;
 ConVar	cv_ShowAds;
 
 public Plugin myinfo =
@@ -28,6 +31,7 @@ public void OnPluginStart()
 	cv_GiveVIP = CreateConVar("sm_vip_goldmember_givevip", "1", "Give free VIP to goldmembers? 1 = Yes, 0 = No", FCVAR_NOTIFY);
 	cv_GroupType = CreateConVar("vip_goldmember_group", "VIP GROUP", "VIP Group to get", FCVAR_NOTIFY);
 	cv_ShowAds = CreateConVar("sm_sm_goldmember_showads", "90.0", "Show messages about goldmember? If yes, enter a float value of how often should these ads be shown, either enter 0.0 to disable this option", FCVAR_NOTIFY);
+    cv_GroupType1 = CreateConVar("vip_goldmember_group_VipTime", "VIP GROUP OF VIP TIME", "Replace VIP Group of VipTime Module with Vip Group of Vip DNS", FCVAR_NOTIFY);
 
 	AutoExecConfig(true, "vip_dns", "vip");
 
@@ -71,6 +75,9 @@ public void Event_RoundStart(Handle event, const char[] name, bool dontBroadcast
 		char buffer[32];
     	cv_GroupType.GetString(buffer, sizeof(buffer));
 
+        char buffer1[32];
+        cv_GroupType1.GetString(buffer1, sizeof(buffer1));
+
 		for(int iClient = 1; iClient <= MaxClients; iClient++)
 		{	
             char VipGroup[64];
@@ -81,9 +88,15 @@ public void Event_RoundStart(Handle event, const char[] name, bool dontBroadcast
 			        VIP_GetClientVIPGroup(iClient, VipGroup, sizeof(VipGroup));
                 }
 
-                if(HasDNS(iClient) && !VIP_IsClientVIP(iClient))
+                if(HasDNS(iClient))
 			    {	
-				    VIP_GiveClientVIP(0, iClient, 0, buffer, false);
+                    if(!VIP_IsClientVIP(iClient)){
+				        VIP_GiveClientVIP(0, iClient, 0, buffer, false);
+
+                    } else if(VIP_IsClientVIP(iClient) && StrEqual(VipGroup, buffer1)){
+
+                        VIP_SetClientVIPGroup(iClient, buffer, false);
+                    }
 			    } 
 
                 if(VIP_IsClientVIP(iClient) && StrEqual(VipGroup, buffer) && !HasDNS(iClient))
