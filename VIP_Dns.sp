@@ -3,9 +3,6 @@
 
 #include <sourcemod>
 #include <vip_core>
-#include <sdktools>
-#include <cstrike>
-
 
 ConVar	cv_ServerDNS;
 ConVar	cv_GiveVIP;
